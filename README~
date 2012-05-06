@@ -10,8 +10,6 @@ grabs the latest tweets on a topic of your choosing, and prints them out
 on a strip of paper.  The printer is just like the receipt printers at 
 7/11.  It uses rolls of thermal paper that you can get at any office supply store
 
-Here's an early video of it working:  http://www.youtube.com/watch?v=xRoUT3GHlHI
-
 I used the wifly shield because it's awesome.  It worked
 right out of the box for me, and now the only cable going to my project is a small power cord from
 a wall wart.  With a couple D batteries, you could totally make this thing battery-powered, too.  Oooh!
