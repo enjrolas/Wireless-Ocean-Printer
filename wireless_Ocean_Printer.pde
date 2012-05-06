@@ -1,7 +1,76 @@
 #include <EEPROM.h>
 
+/************************************************************
+Alex Hornstein
+Wireless Twitter Printer
+5.6.12
+an Ocean Invention project
 
-// (Based on Ethernet's WebClient Example)
+
+This project is a small printer that connects to the internet over wifi,
+grabs the latest tweets on a topic of your choosing, and prints them out
+on a strip of paper.  The printer is just like the receipt printers at 
+7/11.  It uses rolls of thermal paper that you can get at any office supply store
+
+I used the wifly shield because it's awesome.  It worked
+right out of the box for me, and now the only cable going to my project is a small power cord from
+a wall wart.  With a couple D batteries, you could totally make this thing battery-powered, too.  Oooh!
+Or solar!
+
+The total project cost me $130, not counting the arduino.  I've printed out hundreds of feet of tweets, and still counting!
+
+I originally made this printer as a collaboration tool between my new lab in Manila and our partner lab in Hong Kong, so we could
+share ideas in a way that was cooler and more engaging than email.  The plan was to stick one of these printers on the ceiling of 
+anyone we're working with, and whenever anyone had an idea they wanted to share, they'd tweet it with the hashtag #oceanInvention 
+(that's our network of invention labs).  The idea would then instantly print out from all the printers, all over the world.
+
+Since I was using twitter as a back-end for the project, I decided I might as well make the printer a generic tweet-printer.  
+I wanted to make it easy to change the twitter topic that the printer prints out, so I gave each printer a unique name and made a 
+website where you enter a topic for your printer (at artiswrong.com/oceanPrinter)
+
+
+
+Here's all the parts you need:
+++ Thermal printer, $50 from sparkfun (http://www.sparkfun.com/products/10438) or adafruit (https://www.adafruit.com/products/597)
+
+++ Wifly wireless internet shield, $80 from sparkfun (http://www.sparkfun.com/products/9954)
+
+++ Arduino.  I used a seeeduino duemilanove clone with an atmega328, but an uno would work fine as well.  I would stick to processors with a atmega328
+processor or better.  Grab one from adafruit(https://www.adafruit.com/products/50) or sparkfun(http://www.sparkfun.com/products/10356) or seeed studios(http://www.seeedstudio.com/depot/seeeduino-v30-atmega-328p-p-669.html?cPath=132_133) for ~$30
+
+++  Stackable arduino header kit.  The wifly shield doesn't come with headers, so you'll need to solder some on.  Takes about 5 minutes.  
+$1.50 from Sparkfun (http://www.sparkfun.com/products/10007) or adafruit (https://www.adafruit.com/products/85)
+
+
+code stuff:
+all you have to do to configure this code is to set the wireless internet ssid and password (if it's an open network, just use '0' 
+for the password).  Give the printer a unique name, and upload that sketch!
+The printer itself has five wires coming out:  power, ground, serial TX, serial RX, and another ground.
+Connect the ground to the arduino ground, you'll need a beefy 5-9V supply to power the printer, and connect the RX (the green) wire
+to pin 2 of the arduino and the TX (yellow) wire to pin 3.  You should be good to go.
+
+The printer can search for and print out any topic you like on twitter.  To set the topic for your printer, go to 
+artiswrong.com/oceanPrinter/
+Type in your printer name and the topic.  If you want to change the topic, just type in whatever you want and resubmit the form.  The
+printer automatically checks the website before searching twitter, so your updates should be instantaneous.
+
+
+The arduino will work by itself, but you can listen to it over the serial connection at 115200 baud and hear all the chatter going 
+back and forth to the various websites.
+
+Libraries:
+I use ladyada's AWESOME thermal printer library (download it here:  https://github.com/adafruit/Adafruit-Thermal-Printer-Library)
+and the alpha 1 release of Sparkfun's Wifly library (download it here:  http://sparkfun.com/Code/wifly/WiFly-20100831-alpha-1.zip)
+
+If you have any questions/suggestions, ping me at alex@manilamantis.com
+If you're interested in contributing to the code, holler at me and I'll add you to the project.  Contributors are WELCOME!
+
+IMPORTANT---this code will NOT compile on arduino 1.0.  The wifly library isn't
+arduino 1.0 compatible.  I developed and tested on arduino 0022, and it works just
+fine.  Save yourself a world o hurt and grab arduino 0022 from http://arduino.cc/en/Main/Software
+
+
+************************************************************/
 
 #include "WiFly.h"
 // if you're using Arduino 23 or earlier, uncomment the next line
