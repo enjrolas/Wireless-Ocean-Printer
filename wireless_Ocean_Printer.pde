@@ -17,6 +17,8 @@ with mighty thanks to the work of Sparkfun and Adafruit
 #include "Adafruit_Thermal.h"
 
 #include "Credentials.h"
+#include <avr/pgmspace.h>
+#include <avr/wdt.h>
 
 #define HEADER 0
 #define BODY 1
@@ -56,13 +58,14 @@ String topic="";
 String lastTopic="";
 String baseRequest="GET /search.json?rpp=1";
 
+
+
+
 String request;
 
 String key;
 String value;
 unsigned char index;
-
-String formattedTweet[6];
 
 byte twitter[] = { 199, 59, 148, 201}; //search.twitter.com
 
@@ -85,7 +88,7 @@ void setup() {
       // Hang on failure.
     }
   }  
-
+  wdt_enable(WDTO_4S);
   
 }
 
