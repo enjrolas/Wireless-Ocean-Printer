@@ -31,7 +31,7 @@ with mighty thanks to the work of Sparkfun and Adafruit
 #define END_KEY 2
 #define PARSE_VALUE 3
 #define VALUE 4
-#define END_VALUE 5
+#define NESTED_VALUE 5
 
 
 int printer_RX_Pin = 2;  // this is the green wire
@@ -80,6 +80,10 @@ void setup() {
   Serial.begin(115200);
   printer.begin();
   printer.upsideDownOn(); //prints upside-down so the string of paper can hang down from the ceiling
+
+  Serial.println("waking the dog...");
+  //wdt_enable(WDTO_8S);
+
   WiFly.begin();
   
   if (!WiFly.join(ssid, passphrase)) {
@@ -88,7 +92,6 @@ void setup() {
       // Hang on failure.
     }
   }  
-  wdt_enable(WDTO_4S);
   
 }
 
@@ -140,6 +143,7 @@ void parseTopic()
     Serial.println();
     Serial.println("disconnecting.");
     artiswrong.stop();
+    wdt_reset();  //reset the 'dog
     parsing=false;
     if(topic.compareTo(lastTopic)!=0)  //if we've got a new topic, we should reset the latest tweet id
       lastID="";
@@ -262,14 +266,24 @@ void parseTweet()
          case(END_KEY):
           if(c==':')
           {
-            trigger=PARSE_VALUE;
+            trigger=PARSE_VALUE;  //start looking for a character to signify the start of a value string
            #ifdef DEBUG
             Serial.println(" parse value");
            #endif
           }
           break;
                             
+
+        //value strings will either start with a double quote, a left curly brace, or the text 'null' in the case of a null value.  I only
+        //want values that are plaintext within quotes, so I'm going to chuck everything else        
         case(PARSE_VALUE):
+        if(c==',')  //null value, often seen in geo
+        {
+          trigger=PARSE_KEY;
+          value="";
+        }
+        if(c=='{') //it's a nested value, let's chuck it
+          trigger=NESTED_VALUE;
         if(c=='\"')
         {
           trigger=VALUE;
@@ -278,10 +292,17 @@ void parseTweet()
            #endif
         }
         break;
+        
+      case(NESTED_VALUE):
+        if(c=='}')   //we've reached the end of our nest, thank god.  Throw out the value and move on to the next entry
+          trigger=PARSE_KEY;
+         break;
+
+
       case(VALUE):
         if(c=='\"')
         {
-          trigger=PARSE_KEY;
+           trigger=PARSE_KEY;
            #ifdef DEBUG
             Serial.println(" end value");
            #endif
@@ -297,13 +318,10 @@ void parseTweet()
               tweet=value;
           if(key.compareTo("id_str")==0)
               id=value;
-           
-            
-          
-        }
-        else
-          value+=c;
-        break;  
+          }
+          else 
+            value+=c;
+        break;
       }
     }
   }
@@ -312,6 +330,7 @@ void parseTweet()
     Serial.println();
     Serial.println("disconnecting.");
     client.stop();
+    wdt_reset();  //reset the 'dog
     Serial.print(username);
     Serial.println(" says: ");
     Serial.print(tweet);
